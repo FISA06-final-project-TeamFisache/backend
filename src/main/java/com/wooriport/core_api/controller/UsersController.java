@@ -16,4 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsersController {
     private final UsersService usersService;
 
+    @DeleteMapping("/me")
+    public ResponseEntity<ResponseDTO<Void>> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        usersService.withdraw(userDetails.getId());
+
+        return ResponseEntity.ok(ResponseDTO.success(200, "회원 탈퇴가 정상적으로 처리되었습니다.", null));
+    }
 }

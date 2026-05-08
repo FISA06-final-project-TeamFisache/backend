@@ -40,6 +40,15 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll() // 로그인, 회원가입 API는 모두 접근 허용
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // 관리자 전용
+                        // swagger 인증 허가
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/v3/api-docs",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll() // Swagger 관련 리소스는 모두 허용
                         .anyRequest().authenticated() // 그 외 모든 요청은 JWT 인증 필요
                 )
 

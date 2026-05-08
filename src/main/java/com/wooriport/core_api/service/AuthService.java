@@ -51,17 +51,4 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createToken(user.getId(), user.getEmail());
         return new AuthDto.TokenResponse(accessToken);
     }
-
-    @Transactional
-    public void withdraw(UUID userId) {
-        Users user = usersRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-
-        if (user.getStatus() == Users.UserStatus.WITHDRAWN) {
-            throw new IllegalArgumentException("이미 탈퇴 처리된 계정입니다.");
-        }
-
-        // Soft Delete 상태로 변경 (status = WITHDRAWN, deleteAt = 현재시간)
-        user.withdraw();
-    }
 }
