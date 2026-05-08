@@ -40,6 +40,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
+	// Swagger UI 및 OpenAPI 3.0
+// 스프링 부트 3.4 ~ 3.5 버전에 호환되는 최신 버전!
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
 }
 
 tasks.named('test') {

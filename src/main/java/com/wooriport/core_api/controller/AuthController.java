@@ -29,11 +29,4 @@ public class AuthController {
         AuthDto.TokenResponse tokenResponse = authService.login(request);
         return ResponseEntity.ok(ResponseDTO.success(200, "로그인에 성공했습니다.", tokenResponse));
     }
-
-    @DeleteMapping
-    public ResponseEntity<ResponseDTO<Void>> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        authService.withdraw(userDetails.getId());
-
-        return ResponseEntity.ok(ResponseDTO.success(200, "회원 탈퇴가 정상적으로 처리되었습니다.", null));
-    }
 }
