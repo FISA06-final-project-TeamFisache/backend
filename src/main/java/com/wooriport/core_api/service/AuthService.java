@@ -40,6 +40,10 @@ public class AuthService {
         Users user = usersRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 이메일입니다."));
 
+        if (user.getStatus() == Users.UserStatus.WITHDRAWN) {
+            throw new IllegalArgumentException("탈퇴 처리된 계정입니다. 로그인할 수 없습니다.");
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
@@ -52,6 +56,10 @@ public class AuthService {
     public void withdraw(UUID userId) {
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        if (user.getStatus() == Users.UserStatus.WITHDRAWN) {
+            throw new IllegalArgumentException("이미 탈퇴 처리된 계정입니다.");
+        }
 
         // Soft Delete 상태로 변경 (status = WITHDRAWN, deleteAt = 현재시간)
         user.withdraw();
