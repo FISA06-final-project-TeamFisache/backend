@@ -19,6 +19,9 @@ public class Users extends SoftDeleteEntity {
     @Column(name = "id", columnDefinition = "uuid")
     private UUID id;
 
+    @Column(name = "password", nullable = false, length = 100)
+    private String password;
+
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
@@ -38,7 +41,7 @@ public class Users extends SoftDeleteEntity {
     // MOUNTAIN(산) / HUNTER(집중사냥꾼) / SPROUT(느린성장) /
     // SPARK(스파크) / WAVE(자유로운파도)
     @Enumerated(EnumType.STRING)
-    @Column(name = "finance_type", nullable = false, length = 20)
+    @Column(name = "finance_type", length = 20)
     private FinanceType financeType;
 
     // 비즈니스 메서드
