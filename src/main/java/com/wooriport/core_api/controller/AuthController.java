@@ -2,13 +2,12 @@ package com.wooriport.core_api.controller;
 
 import com.wooriport.core_api.base.dto.Auth.AuthDto;
 import com.wooriport.core_api.base.dto.response.ResponseDTO;
+import com.wooriport.core_api.config.security.CustomUserDetails;
 import com.wooriport.core_api.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
@@ -29,5 +28,12 @@ public class AuthController {
     public ResponseEntity<ResponseDTO> login(@RequestBody AuthDto.LoginRequest request) {
         AuthDto.TokenResponse tokenResponse = authService.login(request);
         return ResponseEntity.ok(ResponseDTO.success(200, "로그인에 성공했습니다.", tokenResponse));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ResponseDTO<Void>> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        authService.withdraw(userDetails.getId());
+
+        return ResponseEntity.ok(ResponseDTO.success(200, "회원 탈퇴가 정상적으로 처리되었습니다.", null));
     }
 }
