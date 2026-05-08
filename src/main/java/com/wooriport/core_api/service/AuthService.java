@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -44,5 +46,14 @@ public class AuthService {
 
         String accessToken = jwtTokenProvider.createToken(user.getId(), user.getEmail());
         return new AuthDto.TokenResponse(accessToken);
+    }
+
+    @Transactional
+    public void withdraw(UUID userId) {
+        Users user = usersRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        // Soft Delete 상태로 변경 (status = WITHDRAWN, deleteAt = 현재시간)
+        user.withdraw();
     }
 }
