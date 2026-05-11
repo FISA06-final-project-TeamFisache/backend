@@ -28,6 +28,9 @@ public class Assets extends SoftDeleteEntity {
     @Column(name = "institution", nullable = false, length = 100)
     private String institution;
 
+    @Column(name = "asset_number", length = 50)
+    private String assetNumber;
+
     // BANK / CARD / STOCK
     @Enumerated(EnumType.STRING)
     @Column(name = "asset_type", nullable = false, length = 20)
