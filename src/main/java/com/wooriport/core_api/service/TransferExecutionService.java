@@ -80,8 +80,9 @@ public class TransferExecutionService {
         }
 
         // 2. 급여 통장 조회
+
         Assets salaryAsset = assetRepository
-                .findByUserIdAndAccountPurpose(userId, Assets.AccountPurpose.SALARY)
+                .findByUserIdAndIsSalaryTrue(userId)
                 .orElseThrow(() -> new IllegalStateException("급여 통장이 설정되지 않았습니다."));
 
         // 3. 잔액 검증

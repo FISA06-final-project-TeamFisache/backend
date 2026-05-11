@@ -12,14 +12,12 @@ import java.util.UUID;
 public interface AssetRepository extends JpaRepository<Assets, UUID> {
     // 급여 통장 조회 (execute에서 사용)
     @Query("""
-        SELECT a FROM Assets a
-        WHERE a.user.id = :userId
-          AND a.accountPurpose = :purpose
-          AND a.deletedAt IS NULL
-        """)
-    Optional<Assets> findByUserIdAndAccountPurpose(
-            @Param("userId") UUID userId,
-            @Param("purpose") Assets.AccountPurpose purpose);
+    SELECT a FROM Assets a
+    WHERE a.user.id = :userId
+      AND a.isSalary = true
+      AND a.deletedAt IS NULL
+    """)
+    Optional<Assets> findByUserIdAndIsSalaryTrue(@Param("userId") UUID userId);
 
     // 사용자의 전체 계좌 조회 (soft delete 제외)
     @Query("""

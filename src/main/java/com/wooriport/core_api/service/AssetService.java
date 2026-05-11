@@ -47,6 +47,9 @@ public class AssetService {
     // 전체 자산 목록 조회
     @Transactional(readOnly = true)
     public AssetListResponseDto getAssets(UUID userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
         List<Assets> assets = assetRepository.findByUserIdAndDeletedAtIsNull(userId);
 
         if (assets.isEmpty()) {
@@ -61,20 +64,25 @@ public class AssetService {
     // users 테이블 수정 없음 — assets만 사용
     @Transactional
     public void connectAutoTransfer(UUID userId, AutoTransferConnectRequestDto request) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
         Assets fromAsset = assetRepository.findByIdAndUserId(request.getFromAssetId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("출금 계좌를 찾을 수 없습니다."));
 
         Assets toAsset = assetRepository.findByIdAndUserId(request.getToAssetId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("입금 계좌를 찾을 수 없습니다."));
 
-        // 입금 계좌가 우리은행인지 검증
         if (toAsset.getBankType() != Assets.BankType.WOORI) {
             throw new IllegalArgumentException("자동이체 연결은 우리은행 계좌만 가능합니다.");
         }
 
-        // 출금 계좌를 급여 통장(SALARY)으로 지정
-        // → 이후 execute() 에서 account_purpose = SALARY 로 급여 통장 조회
-        fromAsset.updateAccountPurpose(Assets.AccountPurpose.SALARY);
+        // 기존 급여 통장 isSalary → false 리셋 (중복 방지)
+        assetRepository.findByUserIdAndIsSalaryTrue(userId)
+                .ifPresent(Assets::unmarkAsSalary);
+
+        // 새 급여 통장 지정
+        fromAsset.markAsSalary();
     }
 
     // GET /assets/auto-transfer/status
@@ -82,8 +90,11 @@ public class AssetService {
     // SALARY 계좌 존재 여부로 판단
     @Transactional(readOnly = true)
     public AutoTransferStatusResponseDto getAutoTransferStatus(UUID userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
         Optional<Assets> salaryAsset = assetRepository
-                .findByUserIdAndAccountPurpose(userId, Assets.AccountPurpose.SALARY);
+                .findByUserIdAndIsSalaryTrue(userId);  // ← 쿼리 변경
 
         // SALARY 계좌 없음 → 자동이체 미연결
         if (salaryAsset.isEmpty()) {
@@ -126,25 +137,18 @@ public class AssetService {
     // 총 자산 요약
     @Transactional(readOnly = true)
     public AssetSummaryResponseDto getAssetSummary(UUID userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
         List<Assets> assets = assetRepository.findByUserIdAndDeletedAtIsNull(userId);
 
-        long totalBalance = assets.stream().mapToLong(Assets::getBalance).sum();
-        long bankTotal    = assets.stream()
-                .filter(a -> a.getAssetType() == Assets.AssetType.BANK)
-                .mapToLong(Assets::getBalance).sum();
-        long stockTotal   = assets.stream()
-                .filter(a -> a.getAssetType() == Assets.AssetType.STOCK)
-                .mapToLong(Assets::getBalance).sum();
-        long cardTotal    = assets.stream()
-                .filter(a -> a.getAssetType() == Assets.AssetType.CARD)
-                .mapToLong(Assets::getBalance).sum();
+        long totalBalance = assets.stream()
+                .mapToLong(Assets::getBalance)
+                .sum();
 
         return AssetSummaryResponseDto.builder()
                 .totalBalance(totalBalance)
                 .assetCount(assets.size())
-                .bankTotal(bankTotal)
-                .stockTotal(stockTotal)
-                .cardTotal(cardTotal)
                 .build();
     }
 
@@ -158,7 +162,7 @@ public class AssetService {
                         .institution(a.getInstitution())
                         .assetType(a.getAssetType().name())
                         .accountPurpose(a.getAccountPurpose() != null
-                                ? a.getAccountPurpose().name() : null)
+                                ? a.getAccountPurpose() : null)
                         .balance(a.getBalance())
                         .bankType(a.getBankType().name())
                         .syncedAt(a.getSyncedAt().toString())
@@ -178,35 +182,40 @@ public class AssetService {
                 Assets.builder()
                         .user(user).institution("우리은행")
                         .assetType(Assets.AssetType.BANK)
-                        .accountPurpose(Assets.AccountPurpose.SALARY)
+                        .accountPurpose("생활비")
+                        .isSalary(false)
                         .balance(5000000L).syncedAt(LocalDateTime.now())
                         .bankType(Assets.BankType.WOORI).build(),
 
                 Assets.builder()
                         .user(user).institution("카카오뱅크")
                         .assetType(Assets.AssetType.BANK)
-                        .accountPurpose(Assets.AccountPurpose.SPENDING)
+                        .accountPurpose("생활비")
+                        .isSalary(true)
                         .balance(800000L).syncedAt(LocalDateTime.now())
                         .bankType(Assets.BankType.OTHER).build(),
 
                 Assets.builder()
                         .user(user).institution("토스뱅크")
                         .assetType(Assets.AssetType.BANK)
-                        .accountPurpose(Assets.AccountPurpose.EMERGENCY)
+                        .accountPurpose("청약통장")
+                        .isSalary(false)
                         .balance(1200000L).syncedAt(LocalDateTime.now())
                         .bankType(Assets.BankType.OTHER).build(),
 
                 Assets.builder()
                         .user(user).institution("신한은행")
                         .assetType(Assets.AssetType.BANK)
-                        .accountPurpose(Assets.AccountPurpose.TARGET)
+                        .accountPurpose("비상금")
+                        .isSalary(false)
                         .balance(500000L).syncedAt(LocalDateTime.now())
                         .bankType(Assets.BankType.OTHER).build(),
 
                 Assets.builder()
                         .user(user).institution("우리은행")
                         .assetType(Assets.AssetType.BANK)
-                        .accountPurpose(Assets.AccountPurpose.TARGET)
+                        .accountPurpose("비상금")
+                        .isSalary(false)
                         .balance(2000000L).syncedAt(LocalDateTime.now())
                         .bankType(Assets.BankType.WOORI).build()
         );
