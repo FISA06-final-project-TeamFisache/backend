@@ -33,10 +33,12 @@ public class Assets extends SoftDeleteEntity {
     @Column(name = "asset_type", nullable = false, length = 20)
     private AssetType assetType;
 
-    // SALARY(급여) / SPENDING(소비) / EMERGENCY(비상금) / TARGET(목적)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "account_purpose", length = 20)
-    private AccountPurpose accountPurpose;
+    @Column(name = "account_purpose", length = 100)
+    private String accountPurpose;  // "생활비", "비상금", "여행 적금" 등 자유값
+
+    @Column(name = "is_salary", nullable = false)
+    @Builder.Default
+    private Boolean isSalary = false;  // 급여 통장 여부
 
     // 마지막 동기화 시점의 잔액
     @Column(name = "balance", nullable = false)
@@ -57,8 +59,16 @@ public class Assets extends SoftDeleteEntity {
         this.syncedAt = LocalDateTime.now();
     }
 
-    public void updateAccountPurpose(AccountPurpose accountPurpose) {
+    public void updateAccountPurpose(String accountPurpose) {
         this.accountPurpose = accountPurpose;
+    }
+
+    public void markAsSalary() {
+        this.isSalary = true;
+    }
+
+    public void unmarkAsSalary() {
+        this.isSalary = false;
     }
 
     public boolean isWooriBank() {
@@ -67,10 +77,6 @@ public class Assets extends SoftDeleteEntity {
 
     public enum AssetType {
         BANK, CARD, STOCK
-    }
-
-    public enum AccountPurpose {
-        SALARY, SPENDING, EMERGENCY, TARGET
     }
 
     public enum BankType {
