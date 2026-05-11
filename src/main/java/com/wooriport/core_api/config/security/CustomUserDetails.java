@@ -26,6 +26,10 @@ public class CustomUserDetails implements UserDetails {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
+    public UUID getUserId() {
+        return user.getId();
+    }
+
     @Override
     public String getPassword() {
         return user.getPassword();

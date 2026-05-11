@@ -20,6 +20,15 @@ public class GlobalExceptionHandler {
                 .body(ResponseDTO.fail(400, e.getMessage()));
     }
 
+    // 이체 관련 상태 에러 (잔액 부족, confirm 미완료 등)
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ResponseDTO> handleIllegalStateException(IllegalStateException e) {
+        log.warn("[400] 이체 상태 에러: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ResponseDTO.fail(400, e.getMessage()));
+    }
+
+
     // @Valid 유효성 검사 실패 에러 처리 (이메일 양식 틀림, 비밀번호 규칙 위반 등)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseDTO> handleValidationExceptions(MethodArgumentNotValidException e) {
