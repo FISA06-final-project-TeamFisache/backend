@@ -18,7 +18,9 @@ public class AssetListResponseDto {
         private UUID id;
         private String institution;     // 금융사명
         private String assetType;       // BANK / CARD / STOCK
-        private String accountPurpose;  // SALARY / SPENDING / EMERGENCY / TARGET
+        private String assetNumber;
+        private String accountPurpose;
+        private Boolean isSalary;
         private Long balance;
         private String bankType;        // WOORI / OTHER
         private String syncedAt;

@@ -161,8 +161,9 @@ public class AssetService {
                         .id(a.getId())
                         .institution(a.getInstitution())
                         .assetType(a.getAssetType().name())
-                        .accountPurpose(a.getAccountPurpose() != null
-                                ? a.getAccountPurpose() : null)
+                        .assetNumber(a.getAssetNumber())
+                        .accountPurpose(a.getAccountPurpose())
+                        .isSalary(a.getIsSalary())
                         .balance(a.getBalance())
                         .bankType(a.getBankType().name())
                         .syncedAt(a.getSyncedAt().toString())
@@ -183,6 +184,7 @@ public class AssetService {
                         .user(user).institution("우리은행")
                         .assetType(Assets.AssetType.BANK)
                         .accountPurpose("생활비")
+                        .assetNumber("1002-123-456789")
                         .isSalary(false)
                         .balance(5000000L).syncedAt(LocalDateTime.now())
                         .bankType(Assets.BankType.WOORI).build(),
@@ -191,6 +193,7 @@ public class AssetService {
                         .user(user).institution("카카오뱅크")
                         .assetType(Assets.AssetType.BANK)
                         .accountPurpose("생활비")
+                        .assetNumber("3333-01-1234567")
                         .isSalary(true)
                         .balance(800000L).syncedAt(LocalDateTime.now())
                         .bankType(Assets.BankType.OTHER).build(),
@@ -199,6 +202,7 @@ public class AssetService {
                         .user(user).institution("토스뱅크")
                         .assetType(Assets.AssetType.BANK)
                         .accountPurpose("청약통장")
+                        .assetNumber("3333-01-1234567")
                         .isSalary(false)
                         .balance(1200000L).syncedAt(LocalDateTime.now())
                         .bankType(Assets.BankType.OTHER).build(),
@@ -206,6 +210,7 @@ public class AssetService {
                 Assets.builder()
                         .user(user).institution("신한은행")
                         .assetType(Assets.AssetType.BANK)
+                        .assetNumber("3333-01-1234567")
                         .accountPurpose("비상금")
                         .isSalary(false)
                         .balance(500000L).syncedAt(LocalDateTime.now())
@@ -214,6 +219,7 @@ public class AssetService {
                 Assets.builder()
                         .user(user).institution("우리은행")
                         .assetType(Assets.AssetType.BANK)
+                        .assetNumber("3333-01-1234567")
                         .accountPurpose("비상금")
                         .isSalary(false)
                         .balance(2000000L).syncedAt(LocalDateTime.now())
