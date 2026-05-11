@@ -8,7 +8,7 @@ import com.wooriport.core_api.domain.TransferPlans;
 import com.wooriport.core_api.domain.Users;
 import com.wooriport.core_api.repository.AssetRepository;
 import com.wooriport.core_api.repository.TransferPlanRepository;
-import com.wooriport.core_api.repository.UsersRepository;
+import com.wooriport.core_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ public class TransferPlanService {
 
     private final TransferPlanRepository transferPlanRepository;
     private final AssetRepository assetRepository;
-    private final UsersRepository userRepository;
+    private final UserRepository userRepository;
 
     // ──────────────────────────────────────
     // GET /transfer-plans

@@ -44,6 +44,13 @@ public class Users extends SoftDeleteEntity {
     @Column(name = "finance_type", length = 20)
     private FinanceType financeType;
 
+    @Column(name = "salary_date")
+    private Integer salaryDate;
+
+    public void updateSalaryDate(Integer salaryDate) {
+        this.salaryDate = salaryDate;
+    }
+
     // 비즈니스 메서드
     public void updateFinanceType(FinanceType financeType) {
         this.financeType = financeType;
