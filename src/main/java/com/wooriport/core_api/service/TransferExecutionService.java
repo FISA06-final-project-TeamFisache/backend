@@ -120,10 +120,11 @@ public class TransferExecutionService {
                         toAsset.getBalance() + plan.getPlannedAmount());
 
                 execution.complete();
+                TransferExecutions saved = transferExecutionRepository.save(execution);
                 executedCount++;
 
                 results.add(TransferExecutionResponseDto.ExecutionResult.builder()
-                        .executionId(execution.getId())
+                        .executionId(saved.getId())
                         .toAssetId(toAsset.getId())
                         .institution(toAsset.getInstitution())
                         .amount(plan.getPlannedAmount())
@@ -135,8 +136,10 @@ public class TransferExecutionService {
                 execution.fail();
                 failedCount++;
 
+                TransferExecutions savedFailed = transferExecutionRepository.save(execution);
+
                 results.add(TransferExecutionResponseDto.ExecutionResult.builder()
-                        .executionId(execution.getId())
+                        .executionId(savedFailed.getId())  // ✅
                         .toAssetId(plan.getAsset().getId())
                         .institution(plan.getAsset().getInstitution())
                         .amount(plan.getPlannedAmount())
@@ -144,9 +147,8 @@ public class TransferExecutionService {
                         .failReason(e.getMessage())
                         .build());
             }
-
-            transferExecutionRepository.save(execution);
         }
+        confirmedPlans.forEach(TransferPlans::resetConfirm);
 
         return TransferExecutionResponseDto.builder()
                 .executedCount(executedCount)

@@ -13,10 +13,10 @@ public interface TransferExecutionRepository extends JpaRepository<TransferExecu
     @Query("""
         SELECT te FROM TransferExecutions te
         WHERE te.user.id = :userId
-          AND FUNCTION('YEAR', te.createdAt) = :year
-          AND FUNCTION('MONTH', te.createdAt) = :month
+          AND EXTRACT(YEAR FROM te.createdAt) = :year
+          AND EXTRACT(MONTH FROM te.createdAt) = :month
         ORDER BY te.createdAt DESC
-        """)
+    """)
     List<TransferExecutions> findByUserIdAndYearAndMonth(
             @Param("userId") UUID userId,
             @Param("year") int year,
