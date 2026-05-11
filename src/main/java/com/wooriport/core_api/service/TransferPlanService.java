@@ -107,18 +107,27 @@ public class TransferPlanService {
                 .sum();
 
         List<TransferPlanListResponseDto.PlanItem> items = plans.stream()
-                .map(p -> TransferPlanListResponseDto.PlanItem.builder()
-                        .id(p.getId())
-                        .assetId(p.getAsset().getId())
-                        .institution(p.getAsset().getInstitution())
-                        .purpose(p.getPurpose().name())
-                        .plannedAmount(p.getPlannedAmount())
-                        .isConfirmed(p.getIsConfirmed())
-                        .transferScope(p.getTransferScope().name())
-                        .scheduledDate(p.getScheduledDate())
-                        .year(p.getYear())
-                        .month(p.getMonth())
-                        .build())
+                .map(p -> {
+                    // 비율(%) 계산 로직 추가 (0으로 나누기 방지)
+                    double calculatedRatio = 0.0;
+                    if (totalAmount > 0) {
+                        calculatedRatio = (double) p.getPlannedAmount() / totalAmount * 100.0;
+                    }
+
+                    return TransferPlanListResponseDto.PlanItem.builder()
+                            .id(p.getId())
+                            .assetId(p.getAsset().getId())
+                            .institution(p.getAsset().getInstitution())
+                            .purpose(p.getPurpose().name())
+                            .plannedAmount(p.getPlannedAmount())
+                            .ratio(Math.round(calculatedRatio * 10.0) / 10.0) // ✅ 소수점 첫째 자리까지 반올림 (예: 15.4)
+                            .isConfirmed(p.getIsConfirmed())
+                            .transferScope(p.getTransferScope().name())
+                            .scheduledDate(p.getScheduledDate())
+                            .year(p.getYear())
+                            .month(p.getMonth())
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         return TransferPlanListResponseDto.builder()

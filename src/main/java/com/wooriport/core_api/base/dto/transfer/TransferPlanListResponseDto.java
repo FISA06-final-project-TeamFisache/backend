@@ -22,6 +22,7 @@ public class TransferPlanListResponseDto {
         private String institution;   // 금융사명
         private String purpose;       // SPENDING / EMERGENCY / TARGET / SAVING
         private Long plannedAmount;
+        private Double ratio;          // 전체 대비 비율(%)
         private Boolean isConfirmed;
         private String transferScope;
         private int scheduledDate;
