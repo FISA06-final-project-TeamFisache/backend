@@ -49,6 +49,9 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 	// Redis 연동 (나중에 카드-유저 매핑을 매우 빠르게 조회하기 위함)
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+
 }
 
 tasks.named('test') {
