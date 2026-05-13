@@ -40,6 +40,17 @@ public class Goals extends SoftDeleteEntity {
     @Column(name = "target_amount", nullable = false)
     private Long targetAmount;
 
+    // 초기 자본금
+    @Column(name = "initial_amount", nullable = false)
+    @Builder.Default
+    private Long initialAmount = 0L;
+
+    // 목표 기간
+    // 6개월 이하 → 소비 패턴 중심 관리
+    // 7개월 이상 → 주·채·예 포트폴리오 관리
+    @Column(name = "duration_months")
+    private Integer durationMonths;
+
     @Column(name = "current_amount", nullable = false)
     @Builder.Default
     private Long currentAmount = 0L;
@@ -51,6 +62,10 @@ public class Goals extends SoftDeleteEntity {
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private GoalStatus status = GoalStatus.ACTIVE;
+
+    // AI가 생성한 목표 요약 메시지
+    @Column(name = "summary_message", columnDefinition = "TEXT")
+    private String summaryMessage;
 
     // 비즈니스 메서드
     public void updateCurrentAmount(Long amount) {
@@ -80,5 +95,15 @@ public class Goals extends SoftDeleteEntity {
 
     public enum GoalStatus {
         ACTIVE, COMPLETED, CANCELLED, EXPIRED
+    }
+
+    // 6개월 이하 → 소비 패턴 중심
+    public boolean isShortTerm() {
+        return durationMonths != null && durationMonths <= 6;
+    }
+
+    // 7개월 이상 → 주·채·예 포트폴리오
+    public boolean isLongTerm() {
+        return durationMonths != null && durationMonths >= 7;
     }
 }
