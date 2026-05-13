@@ -20,6 +20,7 @@ public class AssetListResponseDto {
         private String assetType;       // BANK / CARD / STOCK
         private String assetNumber;
         private String accountPurpose;
+        private String accountName;
         private Boolean isSalary;
         private Long balance;
         private String bankType;        // WOORI / OTHER
