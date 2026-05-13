@@ -1,0 +1,32 @@
+spring:
+  # 핵심! application-secret.yml 파일을 자동으로 불러와서 합칩니다.
+  profiles:
+    include: secret
+
+  # 1. PostgreSQL DB 설정 (ID/PW는 secret 파일에서 가져옴)
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/wooriport
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # 2. Redis 설정
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # 3. Kafka 설정
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: approval-detect-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
