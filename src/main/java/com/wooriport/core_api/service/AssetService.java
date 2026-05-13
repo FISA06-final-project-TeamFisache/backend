@@ -77,12 +77,15 @@ public class AssetService {
             throw new IllegalArgumentException("자동이체 연결은 우리은행 계좌만 가능합니다.");
         }
 
-        // 기존 급여 통장 isSalary → false 리셋 (중복 방지)
+        // 기존 급여 통장 해제
         assetRepository.findByUserIdAndIsSalaryTrue(userId)
                 .ifPresent(Assets::unmarkAsSalary);
 
-        // 새 급여 통장 지정
+        // 타행 급여 통장 지정
         fromAsset.markAsSalary();
+
+        // 우리은행 이체 대상 계좌 저장 ← 추가
+        user.connectAutoTransfer(fromAsset.getId(), toAsset.getId());
     }
 
     // GET /assets/auto-transfer/status
@@ -182,54 +185,72 @@ public class AssetService {
     private List<Assets> createDummyAssets(Users user) {
         return List.of(
                 Assets.builder()
-                        .user(user).institution("우리은행")
+                        .user(user)
+                        .institution("우리은행")
                         .assetType(Assets.AssetType.CHECKING)
-                        .accountPurpose("생활비")
                         .assetNumber("1002-123-456789")
+                        .accountName("우리 WON 입출금통장")
+                        .accountPurpose("월급 통장")
                         .isSalary(false)
-                        .accountName("우리 WON 입출금통장")
-                        .balance(5000000L).syncedAt(LocalDateTime.now())
-                        .bankType(Assets.BankType.WOORI).build(),
+                        .balance(5000000L)
+                        .syncedAt(LocalDateTime.now())
+                        .bankType(Assets.BankType.WOORI)
+                        .build(),
 
                 Assets.builder()
-                        .user(user).institution("카카오뱅크")
-                        .assetType(Assets.AssetType.CREDIT_CARD)
-                        .accountPurpose("생활비")
-                        .assetNumber("3333-01-1234567")
-                        .isSalary(true)
-                        .accountName("우리 WON 입출금통장")
-                        .balance(800000L).syncedAt(LocalDateTime.now())
-                        .bankType(Assets.BankType.OTHER).build(),
-
-                Assets.builder()
-                        .user(user).institution("토스뱅크")
-                        .assetType(Assets.AssetType.SAVINGS)
-                        .accountPurpose("청약통장")
-                        .assetNumber("3333-01-1234567")
-                        .isSalary(false)
-                        .accountName("우리 WON 입출금통장")
-                        .balance(1200000L).syncedAt(LocalDateTime.now())
-                        .bankType(Assets.BankType.OTHER).build(),
-
-                Assets.builder()
-                        .user(user).institution("신한은행")
-                        .assetType(Assets.AssetType.BOND)
-                        .assetNumber("3333-01-1234567")
-                        .accountPurpose("비상금")
-                        .isSalary(false)
-                        .accountName("우리 WON 입출금통장")
-                        .balance(500000L).syncedAt(LocalDateTime.now())
-                        .bankType(Assets.BankType.OTHER).build(),
-
-                Assets.builder()
-                        .user(user).institution("우리은행")
+                        .user(user)
+                        .institution("카카오뱅크")
                         .assetType(Assets.AssetType.CHECKING)
                         .assetNumber("3333-01-1234567")
+                        .accountName("카카오뱅크 입출금")
+                        .accountPurpose("급여 통장")
+                        .isSalary(true)
+                        .balance(800000L)
+                        .syncedAt(LocalDateTime.now())
+                        .bankType(Assets.BankType.OTHER)
+                        .build(),
+
+                // 3. 비상금 — 토스뱅크 파킹
+                Assets.builder()
+                        .user(user)
+                        .institution("토스뱅크")
+                        .assetType(Assets.AssetType.PARKING)
+                        .assetNumber("7755-01-9876543")
+                        .accountName("토스 파킹통장")
                         .accountPurpose("비상금")
                         .isSalary(false)
-                        .accountName("우리 WON 입출금통장")
-                        .balance(2000000L).syncedAt(LocalDateTime.now())
-                        .bankType(Assets.BankType.WOORI).build()
+                        .balance(1200000L)
+                        .syncedAt(LocalDateTime.now())
+                        .bankType(Assets.BankType.OTHER)
+                        .build(),
+
+                // 4. 여행 적금 — 신한은행
+                Assets.builder()
+                        .user(user)
+                        .institution("신한은행")
+                        .assetType(Assets.AssetType.SAVINGS)
+                        .assetNumber("110-456-789012")
+                        .accountName("신한 쏠편한 적금")
+                        .accountPurpose("여행 적금")
+                        .isSalary(false)
+                        .balance(500000L)
+                        .syncedAt(LocalDateTime.now())
+                        .bankType(Assets.BankType.OTHER)
+                        .build(),
+
+                // 5. 청약 — 우리은행
+                Assets.builder()
+                        .user(user)
+                        .institution("우리은행")
+                        .assetType(Assets.AssetType.SAVINGS)
+                        .assetNumber("1002-987-654321")
+                        .accountName("우리 청약종합저축")
+                        .accountPurpose("청약")
+                        .isSalary(false)
+                        .balance(2000000L)
+                        .syncedAt(LocalDateTime.now())
+                        .bankType(Assets.BankType.WOORI)
+                        .build()
         );
     }
 }

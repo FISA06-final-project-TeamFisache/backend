@@ -47,6 +47,13 @@ public class Users extends SoftDeleteEntity {
     @Column(name = "salary_date")
     private Integer salaryDate;
 
+    @Column(name = "auto_transfer_to_asset_id", columnDefinition = "uuid")
+    private UUID autoTransferToAssetId;
+
+    public void connectAutoTransfer(UUID fromAssetId, UUID toAssetId) {
+        this.autoTransferToAssetId = toAssetId;
+    }
+
     public void updateSalaryDate(Integer salaryDate) {
         this.salaryDate = salaryDate;
     }
