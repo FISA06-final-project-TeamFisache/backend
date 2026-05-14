@@ -2,10 +2,13 @@ package com.wooriport.core_api.service;
 
 import com.wooriport.core_api.base.dto.asset.*;
 import com.wooriport.core_api.domain.Assets;
+import com.wooriport.core_api.domain.DummyMydata;
 import com.wooriport.core_api.domain.Users;
 import com.wooriport.core_api.repository.AssetRepository;
+import com.wooriport.core_api.repository.DummyMydataRepository;
 import com.wooriport.core_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +19,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AssetService {
 
     private final AssetRepository assetRepository;
     private final UserRepository userRepository;
+    private final DummyMydataRepository dummyMydataRepository;
 
     // POST /assets/sync
     // 더미 계좌 연동 (마이데이터 대체)
@@ -32,16 +37,39 @@ public class AssetService {
         // 이미 연동된 계좌 있으면 synced_at만 갱신
         List<Assets> existing = assetRepository.findByUserIdAndDeletedAtIsNull(userId);
         if (!existing.isEmpty()) {
-            existing.forEach(a -> a.updateBalance(a.getBalance()));
-            return toListResponse(existing);
+            existing.forEach(Assets::delete);  // deleted_at = NOW()
         }
 
-        // 더미 계좌 5개 신규 생성
-        List<Assets> dummyAssets = createDummyAssets(user);
-        assetRepository.saveAll(dummyAssets);
+        // 사용자 이메일과 일치하는 더미 데이터만 조회
+        List<DummyMydata> dummyData = dummyMydataRepository.findByEmail(user.getEmail());
 
-        return toListResponse(dummyAssets);
+        if (dummyData.isEmpty()) {
+            throw new IllegalStateException(
+                    "해당 이메일의 더미 마이데이터가 없습니다: " + user.getEmail());
+        }
+
+        // dummy_mydata → assets 변환 후 저장
+        List<Assets> newAssets = dummyData.stream()
+                .map(d -> Assets.builder()
+                        .user(user)
+                        .institution(d.getInstitution())
+                        .assetType(d.getAssetType())
+                        .accountName(d.getAccountName())
+                        .accountPurpose(d.getAccountPurpose())
+                        .assetNumber(d.getAssetNumber())
+                        .balance(d.getBalance())
+                        .isSalary(d.getIsSalary())
+                        .syncedAt(LocalDateTime.now())
+                        .bankType(d.getBankType())
+                        .build())
+                .collect(Collectors.toList());
+
+        assetRepository.saveAll(newAssets);
+        log.info("마이데이터 연동 완료 — email: {}, 계좌 {}개", user.getEmail(), newAssets.size());
+
+        return toListResponse(newAssets);
     }
+
 
     // GET /assets
     // 전체 자산 목록 조회
