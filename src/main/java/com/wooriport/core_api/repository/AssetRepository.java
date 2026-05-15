@@ -38,4 +38,14 @@ public interface AssetRepository extends JpaRepository<Assets, UUID> {
     Optional<Assets> findByIdAndUserId(
             @Param("id") UUID id,
             @Param("userId") UUID userId);
+
+    // Kafka transaction-events 처리용: asset_number 로 자산 조회
+    // user 도 함께 사용하므로 fetch join 으로 N+1 방지
+    @Query("""
+        SELECT a FROM Assets a
+        JOIN FETCH a.user
+        WHERE a.assetNumber = :assetNumber
+          AND a.deletedAt IS NULL
+        """)
+    Optional<Assets> findByAssetNumber(@Param("assetNumber") String assetNumber);
 }
