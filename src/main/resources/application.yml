@@ -38,3 +38,6 @@ springdoc:
 logging:
   level:
     org.springframework.security: DEBUG
+
+flask:
+  ml-url: http://localhost:8000

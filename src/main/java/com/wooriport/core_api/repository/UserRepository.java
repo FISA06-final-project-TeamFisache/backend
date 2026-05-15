@@ -22,4 +22,12 @@ public interface UserRepository extends JpaRepository<Users, UUID> {
           AND u.deletedAt IS NULL
         """)
     List<Users> findBySalaryDate(@Param("salaryDate") int salaryDate);
+
+    // 월간 리포트 Batch — 전체 활성 사용자
+    @Query("""
+        SELECT u FROM Users u
+        WHERE u.status = 'ACTIVE'
+          AND u.deletedAt IS NULL
+        """)
+    List<Users> findAllActiveUsers();
 }
