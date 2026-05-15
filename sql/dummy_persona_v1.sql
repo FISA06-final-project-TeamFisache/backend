@@ -10,7 +10,7 @@ VALUES
 ('jisoo.kim@example.com', '우리은행',   'SAVINGS',     '우리 주택청약종합저축', '주택청약종합저축',  '1002-447-829301',     4800000, 'WOORI', false),
 ('jisoo.kim@example.com', '토스뱅크',   'PARKING',     '토스 파킹통장',        '비상금',           '1000-3829-4715',      2100000, 'OTHER', false),
 ('jisoo.kim@example.com', '신한은행',   'SAVINGS',     '신한 쏠편한 적금',     '결혼자금 적금',    '110-528-374192',      8400000, 'OTHER', false),
-('jisoo.kim@example.com', '삼성카드',   'CREDIT_CARD', '삼성 iD VISA',        '주거래 신용카드',  '5429-44**-****-1827', 0,       'OTHER', false);
+('jisoo.kim@example.com', '삼성카드',   'CREDIT_CARD', '삼성 iD VISA',        '주거래 신용카드',  '5429-4494-5284-1827', 0,       'OTHER', false);
 
 -- ─────────────────────────────────────────────
 -- 2. users INSERT — 김지수
