@@ -24,7 +24,7 @@ public class GoalsPortfolios extends BaseEntity {
     private Goals goal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id")
     private Products product;
 
     // SAVING(적금) / DEPOSIT(예금) / STOCK(주식) / BOND(채권)
