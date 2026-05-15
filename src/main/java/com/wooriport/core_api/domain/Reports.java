@@ -3,6 +3,8 @@ package com.wooriport.core_api.domain;
 import com.wooriport.core_api.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -47,6 +49,7 @@ public class Reports extends BaseEntity {
     private String monthlyChange;
 
     // portfolios: {"stock_change": 5.2, "bond_change": -1.3, "cash_change": -3.9}
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "portfolios", columnDefinition = "jsonb")
     private String portfolios;
 
@@ -56,6 +59,7 @@ public class Reports extends BaseEntity {
 
     // ── 소비 패턴 ──────────────────────────────
     // expense_categories: [{"category": "식비", "value": 287000}, ...]
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "expense_categories", columnDefinition = "jsonb")
     private String expenseCategories;
 
@@ -65,6 +69,7 @@ public class Reports extends BaseEntity {
 
     // ── 다음달 가이드라인 ──────────────────────
     // recommended_rebalance_ratio: {"stock_ratio": 50, "bond_ratio": 30, "cash_ratio": 20}
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "recommended_rebalance_ratio", columnDefinition = "jsonb")
     private String recommendedRebalanceRatio;
 
