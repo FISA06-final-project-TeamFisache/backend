@@ -8,7 +8,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -38,3 +38,6 @@ springdoc:
 logging:
   level:
     org.springframework.security: DEBUG
+
+flask:
+  ml-url: http://localhost:8000
